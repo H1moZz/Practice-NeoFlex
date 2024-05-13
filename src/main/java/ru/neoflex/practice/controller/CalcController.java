@@ -3,9 +3,6 @@ package ru.neoflex.practice.controller;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
-import jakarta.persistence.*;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +25,6 @@ import java.util.Map;
                 )
         )
 )
-
 @RestController
 public class CalcController {
 
@@ -67,14 +63,14 @@ public class CalcController {
             throws ResourceNotFoundException {
         Calculations calculation;
         calculation = calculationsRepository.findById(id).orElseThrow(()
-                -> new ResourceNotFoundException("Calculation not found with this ID :" + id));
+                -> new ResourceNotFoundException("Expression not found with this ID :" + id));
         return ResponseEntity.ok().body(calculation);
     }
 
     @PutMapping("/calculation/{id}")
     public ResponseEntity<Calculations> update_Calculation(@PathVariable(value = "id") int id,@RequestBody Calculations CalcDetails) throws ResourceNotFoundException {
         Calculations calculation = calculationsRepository.findById(id).orElseThrow(()
-                -> new ResourceNotFoundException("Calculation not found with this ID :\" + id)"));
+                -> new ResourceNotFoundException("Expression not found with this ID :\" + id)"));
 
         calculation.setNumber_1(CalcDetails.getNumber_1());
         calculation.setNumber_2(CalcDetails.getNumber_2());
@@ -84,18 +80,17 @@ public class CalcController {
         else if (calculation.getSign()== '-')
             calculation.setResult(CalcDetails.getNumber_1() - CalcDetails.getNumber_2());
 
+        calculationsRepository.delete(id);
         final Calculations updatedCalculation = calculationsRepository.save(calculation);
         return ResponseEntity.ok(updatedCalculation);
     }
-
     @DeleteMapping("/calculation/{id}")
-    public Map< String, Boolean > deleteEmployee(@PathVariable(value = "id") int id)
+    public Map< String, Boolean > deleteExpression(@PathVariable(value = "id") int id)
             throws ResourceNotFoundException {
         Calculations calculation = calculationsRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Employee not found for this id :" + id));
-
-        calculationsRepository.delete(calculation);
-        Map < String, Boolean > response = new HashMap< >();
+                .orElseThrow(() -> new ResourceNotFoundException("Expression not found for this id :" + id));
+        calculationsRepository.delete(calculation.getId());
+        Map <String, Boolean> response = new HashMap< >();
         response.put("deleted", Boolean.TRUE);
         return response;
     }
